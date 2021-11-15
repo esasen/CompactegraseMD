@@ -21,12 +21,9 @@ if USE_NUMBA:
 
     @jit(nopython=True)
     def get_rot_mat(Omega):
-        #####################################
-        # Returns the rotation matrix 
-        # corresponding to the euler-
-        # vector Omega, found by inverting
-        # the Euler-Rodrigues formula
-        #####################################
+        """
+        Returns the matrix version of the Euler-Rodrigues formula
+        """
         Om = np.linalg.norm(Omega)
         R = np.zeros((3,3),dtype=np.double)
         
@@ -59,12 +56,9 @@ if USE_NUMBA:
         return R
 else:
     def get_rot_mat(Omega):
-        #####################################
-        # Returns the rotation matrix 
-        # corresponding to the euler-
-        # vector Omega, found by inverting
-        # the Euler-Rodrigues formula
-        #####################################
+        """
+        Returns the matrix version of the Euler-Rodrigues formula
+        """
         Omega = np.array(Omega,dtype=np.double)
         Om = np.linalg.norm(Omega)
         if Om<1e-12:
@@ -95,6 +89,9 @@ else:
 if USE_NUMBA:
     @jit(nopython=True)
     def get_rotz(phi):
+        """
+        rotation matrix for rotation over z-axis
+        """
         cp = np.cos(phi)
         sp = np.sin(phi)
         R = np.zeros((3,3),dtype=np.double)    
@@ -106,6 +103,9 @@ if USE_NUMBA:
         return R
 else:
     def get_rotz(phi):
+        """
+        rotation matrix for rotation over z-axis
+        """
         cp = np.cos(phi)
         sp = np.sin(phi)
         R = np.zeros((3,3),dtype=np.double)    
@@ -119,6 +119,9 @@ else:
 if USE_NUMBA:
     @jit(nopython=True)
     def extract_Omegas(R):
+        """
+        Inversion of Euler Rodriguez Formula
+        """
         val = 0.5*(np.trace(R)-1)
         if (val > DEF_S03M_CLOSE_TO_ONE):
             return np.zeros(3)
@@ -134,6 +137,9 @@ if USE_NUMBA:
         return Theta
 else:
     def extract_Omegas(R):
+        """
+        Inversion of Euler Rodriguez Formula
+        """
         val = 0.5*(np.trace(R)-1)
         if (val > DEF_S03M_CLOSE_TO_ONE):
             return np.zeros(3)
