@@ -1,21 +1,31 @@
 import os,glob,sys
 import random
 import SO3Methods as so3
+import periodic_boundary
 
 try:
     import numpy as np
 except ModuleNotFoundError:
-    print('numpy not installed. Please install numpy')
+    print('numpy not installed. Please install numpy: pip install numpy')
     sys.exit(1)
 
 try:
     from numba import jit
-    USE_NUMBA = True
 except ModuleNotFoundError:
-    print('Warning: numba not installed. Consider installing numba to speed up the calculation')
-    USE_NUMBA = False
+    print('numba not installed. Please install numpy: pip install numba')
+    sys.exit(1)
+
     
 ########################################################################
+########################################################################
+########################################################################
+
+
+
+
+def gen_DNA(box_dims,nbp,disc_len,lb=40,excluded_volume=None):
+    
+    
 
 
 
