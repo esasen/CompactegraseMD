@@ -21,10 +21,12 @@ except ModuleNotFoundError:
 ########################################################################
 
 
+def gen_DNA(nbp,disc_len,periodic_box=None,lb=40,excluded_volume=0):
 
 
-def gen_DNA(box_dims,nbp,disc_len,lb=40,excluded_volume=None):
-    
+
+
+
     
 
 
