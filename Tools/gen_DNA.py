@@ -44,7 +44,6 @@ def gen_DNA_conf(nbp: int,disc_len: float,periodic_box=None,lb=40.0,ev_size=0.0,
         theta = np.random.random(3) * np.pi
         first_triad = so3.get_rot_mat(theta)
 
-
     if ev_size is None or ev_size == 0:
         # if no excluded volume, no trials are required
         pos = gen_conf(nbp, disc_len, lb, first_pos, first_triad)
@@ -61,8 +60,8 @@ def gen_DNA_conf(nbp: int,disc_len: float,periodic_box=None,lb=40.0,ev_size=0.0,
                           ev_size,
                           excluded_neighbors=excluded_neighbors,
                           periodic_box=periodic_box)
-
     return pos
+
 
 # @jit(nopython=True)
 def gen_random_point_in_box(box):
@@ -70,7 +69,6 @@ def gen_random_point_in_box(box):
     for i in range(3):
         first_pos[i] = periodic_box[i,0] + np.random.rand(1)*(periodic_box[i,1]-periodic_box[i,0])
     return first_pos
-
 
 # @jit(nopython=True)
 def gen_conf(nbp,disc_len,lb,first_pos,first_triad):
@@ -141,8 +139,6 @@ def gen_ev_conf(nbp,disc_len,lb,first_pos,first_triad,ev_size,excluded_neighbors
                         i = 2
                     continue
         i+=1
-
-    print(f'{trials} total trials')
     return pos
 
 
