@@ -9,10 +9,9 @@ except ModuleNotFoundError:
 
 try:
     from numba import jit
-    USE_NUMBA = True
 except ModuleNotFoundError:
-    print('Warning: numba not installed. Consider installing numba to speed up the calculation')
-    USE_NUMBA = False
+    print('numba not installed. Please install numpy: pip install numba')
+    sys.exit(1)
 
 ########################################################################
 ########################################################################
