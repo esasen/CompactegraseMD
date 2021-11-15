@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 ########################################################################
 ########################################################################
 
-def gen_DNA_conf(nbp,disc_len,periodic_box=None,lb=40,ev_size=0,first_pos=None,first_triad=None,max_trials=1000):
+def gen_DNA_conf(nbp: int,disc_len: float,periodic_box=None,lb=40.0,ev_size=0.0,first_pos=None,first_triad=None):
     """ generates a DNA configuration. periodic boundaries will be imposed if the periodic_box argument is passed.
         Excluded columes between atoms will be imposed based on an excluded volume radius set by the argument.
     """
@@ -32,22 +32,26 @@ def gen_DNA_conf(nbp,disc_len,periodic_box=None,lb=40,ev_size=0,first_pos=None,f
     if periodic_box is not None:
         bp.valid_box(periodic_box)
 
+    # set first pos
     if first_pos is None:
         if periodic_box is None:
             first_pos = np.zeros(3)
         else:
             first_pos = gen_random_point_in_box(periodic_box)
 
+    # set first triad
     if first_triad is None:
         theta = np.random.random(3) * np.pi
         first_triad = so3.get_rot_mat(theta)
 
-    if ev_size == 0:
-        # if no excluded volume no trials are required
+
+    if ev_size is None or ev_size == 0:
+        # if no excluded volume, no trials are required
         pos = gen_conf(nbp, disc_len, lb, first_pos, first_triad)
         if periodic_box is not None:
             pos = bp.place_in_box(periodic_box,pos)
     else:
+        # with excluded volume the somewhat more expensive generation function is required
         excluded_neighbors = int(np.ceil(ev_size / disc_len))
         pos = gen_ev_conf(nbp,
                           disc_len,
