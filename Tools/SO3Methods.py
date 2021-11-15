@@ -1,3 +1,5 @@
+#!/bin/env python3
+
 try:
     import numpy as np
 except ModuleNotFoundError:
@@ -16,6 +18,7 @@ DEF_S03M_CLOSE_TO_ONE        =  0.999999999999
 DEF_S03M_CLOSE_TO_MINUS_ONE  = -0.999999999999
 
 if USE_NUMBA:
+
     @jit(nopython=True)
     def get_rot_mat(Omega):
         #####################################
@@ -24,12 +27,10 @@ if USE_NUMBA:
         # vector Omega, found by inverting
         # the Euler-Rodrigues formula
         #####################################
-        Omega = Omega*1.
         Om = np.linalg.norm(Omega)
         R = np.zeros((3,3),dtype=np.double)
         
         if Om<1e-12:
-            
             R[0,0] = 1
             R[1,1] = 1
             R[2,2] = 1
@@ -64,7 +65,7 @@ else:
         # vector Omega, found by inverting
         # the Euler-Rodrigues formula
         #####################################
-        Omega = Omega*1.
+        Omega = np.array(Omega,dtype=np.double)
         Om = np.linalg.norm(Omega)
         if Om<1e-12:
             return np.array([[1,0,0],[0,1,0],[0,0,1]])

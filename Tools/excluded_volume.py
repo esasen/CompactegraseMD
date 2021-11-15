@@ -17,7 +17,26 @@ except ModuleNotFoundError:
 ########################################################################
 ########################################################################
 ########################################################################
-# impose periodic boundary for single atom
+
+@jit(nopython=True)
+def ev_violation_pair(r1,r2,ev_dist: float):
+    if np.linalg.norm(r2-r1) <= ev_dist:
+        return False
+    return True
+
+@jit(nopython=True)
+def ev_violation_pair_relsize(r1,r2,size1: float,size2: float):
+    ev_dist = 0.5*(size1+size2)
+    return ev_violation_pair(r1, r2, ev_dist)
+
+@jit(nopython=True)
+def ev_violation(R,ev_dist,excluded_neighbors=0: int):
+    """ checks for excluded volume violations within the given group of atoms """
+
+
+    ev_dist = 0.5*(size1+size2)
+    return ev_violation_pair(r1, r2, ev_dist)
+
 
 def place_in_box_single(box,r):
     """ places a single position within the bounds of the specified box. The box dimension is 3x2 """
