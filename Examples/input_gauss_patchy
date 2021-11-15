@@ -1,0 +1,141 @@
+###############################
+# Set the Seed
+# variable seed equal 784365678.
+
+# Temperature
+variable T equal 1.
+
+# Damp parameter (inversely proportional to friction coefficient)
+variable gamma equal 1.
+
+# Fixed boundaries in all dimensions.
+boundary p p p
+
+
+units           lj
+dimension       3
+
+
+# Pair interactions require lists of neighbours to be calculated
+#neighbor 1.0 bin
+#neigh_modify every 1 delay 0 check yes
+
+
+atom_style      angle
+read_data       conf
+
+# set masses
+mass		1 1.0
+mass		2 1.0
+mass		3 0.5
+
+######################
+# fix groups
+
+group		rigid1 id 2 3
+
+
+######################
+# protein group
+
+group		protein id 2 3
+
+
+######################
+# dna group
+
+group		dna id 1
+
+
+#################################################################
+#################################################################
+#################################################################
+#### Interactions
+
+#bond_style      harmonic
+#bond_coeff      1 30 1
+
+#bond_style   fene
+#special_bonds fene
+#bond_coeff       1 30.0 1.6 1.0  1.0
+
+#angle_style   hybrid cosine
+#angle_coeff   1 cosine 14.7
+
+
+
+#################################################################
+
+# hybrid pair style allows for multiple pair styles to be active
+
+pair_style   hybrid lj/cut 1.122461 gauss 1.122461
+pair_modify  shift yes
+pair_coeff   1 1 lj/cut 1.0 1.0 1.122462048309373
+pair_coeff   1 2 lj/cut 1.0 1.0 1.122462048309373
+pair_coeff   2 2 lj/cut 1.0 1.0 1.122462048309373
+
+#pair_coeff   1 3 lj/cut 41.0 0.535 0.685
+#pair_coeff  1 3 0.0 0.535 0.685
+pair_coeff   1 3 gauss 40 2 
+
+pair_coeff   2 3 lj/cut 0.0 1.0 1.122462048309373
+pair_coeff   3 3 lj/cut 0.0 1.0 1.122462048309373
+
+neigh_modify	exclude type 2 3
+neigh_modify	exclude type 3 3
+
+
+
+
+special_bonds   lj 0.0 1.0 1.0
+
+######################
+# neigh_modify
+
+neigh_modify	exclude group rigid1 rigid1
+
+
+
+#################################################################
+#################################################################
+# Integrator
+
+velocity all create $T ${seed}
+
+######################
+# fix protein
+
+fix 1 protein rigid/nve group 1 rigid1
+
+######################
+
+
+# Fix Integrator
+fix 2 dna nve
+fix 3 all langevin $T $T ${gamma} ${seed}
+
+#################################################################
+#################################################################
+
+
+timestep        0.001
+
+
+thermo_modify    norm no
+thermo          100000
+
+#run             1000000
+
+
+######################################
+# dumps 
+
+dump xyz all xyz 50 dump/test.xyz
+
+dump custom_dump all custom 50 dump/test.atom xu yu zu
+
+######################################
+
+
+run             10000000
+
