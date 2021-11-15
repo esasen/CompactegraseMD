@@ -27,15 +27,12 @@ def cal_persistence_length(conf,m_max=1,disc_len=None):
     if disc_len is None:
         disc_len = cal_disc_len(conf)
 
-    m_max = 1
-
     tans =  __get_tangents(conf,normalized=True)
     if m_max == 1:
         lb = __cal_perslen_single(tans,disc_len)
     else:
         lb = __cal_perslen_multiple(tans, m_max, disc_len)
-
-    print(lb)
+    return lb
 
 
 @jit(nopython=True)
@@ -120,4 +117,5 @@ if __name__ == "__main__":
     print('done')
     lb = cal_persistence_length(conf, m_max=10, disc_len=None)
 
+    print(lb)
 
