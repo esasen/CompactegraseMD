@@ -19,90 +19,75 @@ except ModuleNotFoundError:
 ########################################################################
 
 @jit(nopython=True)
-def ev_violation_pair(r1,r2,ev_dist: float):
-    if np.linalg.norm(r2-r1) <= ev_dist:
-        return False
-    return True
+def ev_violation_pair(r1,r2,ev_dist):
+    """ checks if pair of atoms violates excluded volume set by ev_dist """
+    if np.linalg.norm(r2-r1) < ev_dist:
+        return True
+    return False
 
 @jit(nopython=True)
 def ev_violation_pair_relsize(r1,r2,size1: float,size2: float):
+    """ checks if pair of atoms violates excluded volume set by the respective size of the atoms """
     ev_dist = 0.5*(size1+size2)
     return ev_violation_pair(r1, r2, ev_dist)
 
 @jit(nopython=True)
-def ev_violation(R,ev_dist,excluded_neighbors=0: int):
+def ev_violation(R,ev_dist,excluded_neighbors=0):
     """ checks for excluded volume violations within the given group of atoms """
+    N = len(R)
+    for i in range(excluded_neighbors+1,N):
+        for j in range(0,i-excluded_neighbors):
+            if np.linalg.norm(R[j] - R[i]) < ev_dist:
+                return True
+    return False
 
-
-    ev_dist = 0.5*(size1+size2)
-    return ev_violation_pair(r1, r2, ev_dist)
-
-
-def place_in_box_single(box,r):
-    """ places a single position within the bounds of the specified box. The box dimension is 3x2 """
-    if np.shape(box) != (3,2):
-        raise ValueError(f'Invalid dimension of box. Needs to be (3x2), {np.shape(box)} given')
-
-    # use numba is numba is loaded
-    if USE_NUMBA:
-        return place_in_box_single_numba(box,r)
-
-    rnew = np.zeros(np.shape(r))
-    rnew[0] = (r[0]-box[0,0])%(box[0,1]-box[0,0]) + box[0,0]
-    rnew[1] = (r[1]-box[1,0])%(box[1,1]-box[1,0]) + box[1,0]
-    rnew[2] = (r[2]-box[2,0])%(box[2,1]-box[2,0]) + box[2,0]
-    return rnew
-
-if USE_NUMBA:
-    @jit(nopython=True)
-    def place_in_box_single_numba(box,r):
-        rnew = np.zeros(np.shape(r))
-        rnew[0] = (r[0]-box[0,0])%(box[0,1]-box[0,0]) + box[0,0]
-        rnew[1] = (r[1]-box[1,0])%(box[1,1]-box[1,0]) + box[1,0]
-        rnew[2] = (r[2]-box[2,0])%(box[2,1]-box[2,0]) + box[2,0]
-        return rnew
+@jit(nopython=True)
+def ev_violation_single(R,r,ev_dist):
+    """ checks if the atom specified by r violates excluded volumes with the group of atoms R """
+    for i in range(len(R)):
+        if np.linalg.norm(r - R[i]) < ev_dist:
+            return True
+    return False
 
 ########################################################################
-# impose periodic boundary for array of atoms
+# including periodic boundary conditions
 
-def place_in_box(box,R):
-    """ places an array of positions within the bounds of the specified box. The box dimension is 3x2 """
-    if np.shape(box) != (3,2):
-        raise ValueError(f'Invalid dimension of box. Needs to be (3x2), {np.shape(box)} given')
+@jit(nopython=True)
+def ev_violation_single_periodic_box(R,r,ev_dist,periodic_box):
+    """ checks if the atom specified by r violates excluded volumes with the group of atoms R including periodic boundary"""
+    N = len(R)
+    for i in range(N):
+        if ev_violation_pair_in_periodic_box(r,R[i],ev_dist,periodic_box):
+            return True
+    return False
 
-    # use numba is numba is loaded
-    if USE_NUMBA:
-        return place_in_box_numba(box,R)
 
-    Rnew = np.zeros(np.shape(R))
-    span = box[:,1] - box[:,0]
-    for i in range(len(R)):
-        Rnew[i,0] = (R[i,0]-box[0,0])%span[0] + box[0,0]
-        Rnew[i,1] = (R[i,1]-box[1,0])%span[1] + box[1,0]
-        Rnew[i,2] = (R[i,2]-box[2,0])%span[2] + box[2,0]
-    return Rnew
-
-if USE_NUMBA:
-    @jit(nopython=True)
-    def place_in_box_numba(box,R):
-        Rnew = np.zeros(np.shape(R))
-        span = box[:,1] - box[:,0]
-        for i in range(len(R)):
-            Rnew[i,0] = (R[i,0]-box[0,0])%span[0] + box[0,0]
-            Rnew[i,1] = (R[i,1]-box[1,0])%span[1] + box[1,0]
-            Rnew[i,2] = (R[i,2]-box[2,0])%span[2] + box[2,0]
-        return Rnew
-
-def valid_box_dimension(box):
-    if np.shape(box) != (3,2):
-        raise ValueError(f'Invalid dimension of box. Needs to be (3x2), {np.shape(box)} given')
-
-def valid_box(box):
-    if np.shape(box) != (3,2):
-        raise ValueError(f'Invalid dimension of box. Needs to be (3x2), {np.shape(box)} given')
+@jit(nopython=True)
+def ev_violation_pair_in_periodic_box(r1,r2,ev_dist,periodic_box):
+    """
+     checks if the two atoms or their periodic copies violate the excluded volume set by ev_dist
+     assumes the tho positions to be within the box
+    """
+    dists = np.zeros(3)
     for i in range(3):
-        if box[i,1] <= box[i,0]:
-            raise ValueError(f'Lower bound of periodic box larger than upper bound')
+        dists[i] = closest_dist_1d_periodic(r1[i], r2[i], periodic_box[i])
+    if np.linalg.norm(dists) < ev_dist:
+        return True
+    return False
+
+@jit(nopython=True)
+def closest_dist_1d_periodic(a,b,box_bound):
+    """ calculates the closest distance of two points in 1d across the periodic boundary """
+    dx = np.abs(a - b)
+    box_range = box_bound[1] - box_bound[0]
+    if a > box_bound[0] + box_range*0.5:
+        dx_alt = np.abs(a - box_range - b)
+    else:
+        dx_alt = np.abs(a + box_range - b)
+    if dx_alt < dx:
+        return dx_alt
+    return dx
+
 
 
 if __name__ == "__main__":
