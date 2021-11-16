@@ -1,7 +1,6 @@
 #!/bin/env python3
 
-import os,glob,sys
-import random
+import sys
 import SO3Methods as so3
 import periodic_boundary as bp
 import excluded_volume as ev

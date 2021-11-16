@@ -36,8 +36,7 @@ if USE_NUMBA:
         cosOm = np.cos(Om)
         sinOm = np.sin(Om)
         Omsq  = Om*Om
-        
-        # ~ R = np.zeros((3,3),dtype=np.double)
+
         R[0,0] = cosOm+Omega[0]**2/Omsq*(1-cosOm)
         R[1,1] = cosOm+Omega[1]**2/Omsq*(1-cosOm)
         R[2,2] = cosOm+Omega[2]**2/Omsq*(1-cosOm)
