@@ -55,26 +55,24 @@ class AtomType:
         self.id         = id
 
 class BondTypes:
-    name:       str
-    id:         int
+    name:   str
+    id:     int
+    style:  str
+    coeff:  List
 
-    bond_style: str
-    bond_coeff: List
-
-    def __init(self,name,bond_style,bond_coeff):
-        self.bond_style = bond_style
-        self.bond_coeff = bond_coeff
+    def __init(self,name,style,coeff):
+        self.style = style
+        self.coeff = coeff
 
 class AngleTypes:
-    name:       str
-    id:         int
+    name:   str
+    id:     int
+    style:  str
+    coeff:  List
 
-    bond_style: str
-    bond_coeff: List
-
-    def __init(self,name,bond_style,bond_coeff):
-        self.bond_style = bond_style
-        self.bond_coeff = bond_coeff
+    def __init(self,name,style,coeff):
+        self.style = style
+        self.coeff = coeff
 
 
 

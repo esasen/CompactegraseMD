@@ -64,12 +64,9 @@ def gen_DNA_conf(nbp: int,disc_len: float,periodic_box=None,lb=40.0,ev_size=0.0,
 
 # @jit(nopython=True)
 def gen_random_point_in_box(box):
-    first_pos = np.zeros(3)
-    for i in range(3):
-        first_pos[i] = periodic_box[i,0] + np.random.rand(1)*(periodic_box[i,1]-periodic_box[i,0])
-    return first_pos
+    return periodic_box[:,0] + np.random.rand(3)*(periodic_box[:,1]-periodic_box[:,0])
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def gen_conf(nbp,disc_len,lb,first_pos,first_triad):
     """
         Generate configuration without taking excluded volumes into account
@@ -154,6 +151,7 @@ if __name__ == "__main__":
     L           = float(sys.argv[3])
 
     ev_size = disc_len
+    # ev_size = 0
     periodic_box = np.array([[0,L],[0,L],[0,L]])
     # periodic_box = None
 
