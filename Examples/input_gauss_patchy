@@ -109,6 +109,7 @@ fix 1 protein rigid/nve group 1 rigid1
 
 ######################
 
+minimize 0.0 1.0e-8 1000 100000
 
 # Fix Integrator
 fix 2 dna nve

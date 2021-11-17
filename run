@@ -1,0 +1,1 @@
+lmp_stable -var seed `bash -c 'echo $RANDOM'` -echo screen < input

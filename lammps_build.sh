@@ -1,0 +1,10 @@
+cd mylammps/src
+make purge
+make package-update
+make yes-BROWNIAN
+make yes-RIGID
+make yes-MOLECULE
+make yes-EXTRA-COMPUTE
+make yes-EXTRA-DUMP
+make yes-EXTRA-PAIR
+make serial

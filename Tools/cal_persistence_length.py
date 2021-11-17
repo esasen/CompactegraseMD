@@ -83,7 +83,7 @@ def get_tangents(conf, normalized=False):
 
 @jit(nopython=True)
 def __get_tangents(conf,normalized=False):
-    tans = np.zeros((len(conf), len(conf[0])-1, 3))
+    tans = np.zeros((len(conf), len(conf[0])-1, len(conf[0,0])))
     for s in range(len(conf)):
         for i in range(len(conf[0])-1):
             tans[s,i] = conf[s, i + 1] - conf[s, i]

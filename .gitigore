@@ -1,5 +1,9 @@
 # ignore all __pychache__ directories
 __pycache__/
 
+# ignore Run directory
+Run/
+
+
 # ignore all pyc files
 **.pyc
