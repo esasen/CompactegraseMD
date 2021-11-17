@@ -1,0 +1,16 @@
+TEMPLATE FOR TEST MOLECULE
+
+	3 atoms
+
+		
+Coords
+# id x y z
+1 0.0 0.0 0.0 
+2 -1.0 0.0 0.0 
+3 1.0 0.0 0.0 
+
+Types
+
+1 2 
+2 3 
+3 3 
