@@ -17,15 +17,20 @@ except ModuleNotFoundError:
     print('numba not installed. Please install numpy: pip install numba')
     sys.exit(1)
 
+from mpl_toolkits import mplot3d
+import matplotlib.pyplot as plt
+
     
 ########################################################################
 ########################################################################
 ########################################################################
 
-def gen_DNA_conf(nbp: int,disc_len: float,periodic_box=None,lb=40.0,ev_size=0.0,first_pos=None,first_triad=None):
+def gen_DNA_conf(nbp: int,disc_len: float,periodic_box=None,lb=40.0,ev_size=0.0,first_pos=None,first_triad=None,rise=0.34):
     """ generates a DNA configuration. periodic boundaries will be imposed if the periodic_box argument is passed.
         Excluded columes between atoms will be imposed based on an excluded volume radius set by the argument.
     """
+
+    num_segs = int(np.ceil(nbp*rise/disc_len))
 
     # check if periodic boundary box dimensions are correct
     if periodic_box is not None:
@@ -45,13 +50,13 @@ def gen_DNA_conf(nbp: int,disc_len: float,periodic_box=None,lb=40.0,ev_size=0.0,
 
     if ev_size is None or ev_size == 0:
         # if no excluded volume, no trials are required
-        pos = gen_conf(nbp, disc_len, lb, first_pos, first_triad)
+        pos = gen_conf(num_segs, disc_len, lb, first_pos, first_triad)
         if periodic_box is not None:
             pos = bp.place_in_box(periodic_box,pos)
     else:
         # with excluded volume the somewhat more expensive generation function is required
         excluded_neighbors = int(np.ceil(ev_size / disc_len))
-        pos = gen_ev_conf(nbp,
+        pos = gen_ev_conf(num_segs,
                           disc_len,
                           lb,
                           first_pos,
@@ -63,21 +68,21 @@ def gen_DNA_conf(nbp: int,disc_len: float,periodic_box=None,lb=40.0,ev_size=0.0,
 
 
 # @jit(nopython=True)
-def gen_random_point_in_box(box):
+def gen_random_point_in_box(periodic_box):
     return periodic_box[:,0] + np.random.rand(3)*(periodic_box[:,1]-periodic_box[:,0])
 
 @jit(nopython=True)
-def gen_conf(nbp,disc_len,lb,first_pos,first_triad):
+def gen_conf(num_segs,disc_len,lb,first_pos,first_triad):
     """
         Generate configuration without taking excluded volumes into account
     """
-    pos    = np.zeros((nbp,3))
+    pos    = np.zeros((num_segs,3))
     T      = np.copy(first_triad)
     sigma = np.sqrt(disc_len/lb)
 
     pos[0] = first_pos
     pos[1] = first_pos + T[:,2]*disc_len
-    for i in range(2,nbp):
+    for i in range(2,num_segs):
         theta = np.random.normal(loc=0.0, scale=sigma, size=3)
         R = so3.get_rot_mat(theta)
         T = np.dot(T,R)
@@ -85,12 +90,12 @@ def gen_conf(nbp,disc_len,lb,first_pos,first_triad):
     return pos
 
 # @jit(nopython=True)
-def gen_ev_conf(nbp,disc_len,lb,first_pos,first_triad,ev_size,excluded_neighbors=0,periodic_box=None,shift_back = 20,max_trials_per_step=1000):
+def gen_ev_conf(num_segs,disc_len,lb,first_pos,first_triad,ev_size,excluded_neighbors=0,periodic_box=None,shift_back = 20,max_trials_per_step=1000):
     """
         Generate configuration considering exlcluded volumes and the periodicity of the box
     """
-    pos         = np.zeros((nbp,3))
-    triads      = np.zeros((nbp-1,3,3))
+    pos         = np.zeros((num_segs,3))
+    triads      = np.zeros((num_segs-1,3,3))
     # T           = np.copy(first_triad)
     triads[0]   = first_triad
     sigma = np.sqrt(disc_len/lb)
@@ -99,10 +104,10 @@ def gen_ev_conf(nbp,disc_len,lb,first_pos,first_triad,ev_size,excluded_neighbors
     pos[1] = first_pos + first_triad[:,2]*disc_len
     i = 2
 
-    max_trials = max_trials_per_step*nbp
+    max_trials = max_trials_per_step*num_segs
     trials     = 0
 
-    while i < nbp:
+    while i < num_segs:
         trials += 1
         if trials >= max_trials:
             raise Exception(f"Could not generate configuration. Max trial steps ({max_trials}) reached")
@@ -137,6 +142,12 @@ def gen_ev_conf(nbp,disc_len,lb,first_pos,first_triad,ev_size,excluded_neighbors
         i+=1
     return pos
 
+def plot_DNA_conf(conf):
+    fig = plt.figure(figsize=(10,10))
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter(conf[:,0], conf[:,1], conf[:,2], zdir='z', s=50, c='black', depthshade=True)
+    ax.plot(conf[:, 0], conf[:, 1], conf[:, 2], zdir='z', c='black',lw=3)
+    plt.show()
 
 
 
@@ -151,7 +162,7 @@ if __name__ == "__main__":
     L           = float(sys.argv[3])
 
     ev_size = disc_len
-    # ev_size = 0
+    ev_size = 0
     periodic_box = np.array([[0,L],[0,L],[0,L]])
     # periodic_box = None
 
@@ -169,13 +180,5 @@ if __name__ == "__main__":
                 if ev.ev_violation_pair_in_periodic_box(conf[i],conf[j],ev_size,periodic_box):
                     print('EV VIOLATION!')
 
+    plot_DNA_conf(conf)
 
-
-    from mpl_toolkits import mplot3d
-    import matplotlib.pyplot as plt
-
-    fig = plt.figure(figsize=(10,10))
-    ax = fig.add_subplot(projection='3d')
-    ax.scatter(conf[:,0], conf[:,1], conf[:,2], zdir='z', s=50, c='black', depthshade=True)
-    ax.plot(conf[:, 0], conf[:, 1], conf[:, 2], zdir='z', c='black',lw=3)
-    plt.show()

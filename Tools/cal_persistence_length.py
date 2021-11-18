@@ -99,14 +99,16 @@ def __get_tangents(conf,normalized=False):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 4:
         print("usage: %s num_bp disc_len" % sys.argv[0])
         sys.exit()
 
     nbp = int(sys.argv[1])
     disc_len = float(sys.argv[2])
+    L = 1000
 
     ev_size = None
+    ev_size = disc_len
 
     # periodic_box = np.array([[0, L], [0, L], [0, L]])
     periodic_box = None
@@ -117,4 +119,4 @@ if __name__ == "__main__":
     lb = cal_persistence_length(conf, m_max=10, disc_len=None)
 
     print(lb)
-
+    gen_DNA.plot_DNA_conf(conf)
