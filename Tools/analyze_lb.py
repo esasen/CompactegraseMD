@@ -6,7 +6,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib import rc
-   
+
+sys.path.append('inout')
+sys.path.append('evals')
+
 import ReadXYZ as rxyz
 import cal_persistence_length as clb
     
