@@ -96,7 +96,7 @@ def gen_ev_conf(num_segs,disc_len,lb,first_pos,first_triad,ev_size,excluded_neig
     """
     pos         = np.zeros((num_segs,3))
     triads      = np.zeros((num_segs-1,3,3))
-    # T           = np.copy(first_triad)
+    # T           = np.copy(first_triad)5
     triads[0]   = first_triad
     sigma = np.sqrt(disc_len/lb)
 

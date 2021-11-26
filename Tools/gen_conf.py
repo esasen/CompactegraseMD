@@ -93,11 +93,13 @@ if __name__ == "__main__":
     disc_len     = float(sys.argv[3])
     L            = float(sys.argv[4])
 
-    scale_factor = 1./3.4
+    scale_factor = 1./disc_len
 
     ev_size = disc_len
     # ev_size = 0
-    periodic_box = np.array([[0,L],[0,L],[0,L]])
+    # periodic_box = np.array([[0,L],[0,L],[0,L]])
+    hL = 0.5*L
+    periodic_box = np.array([[-hL,hL],[-hL,hL],[-hL,hL]])
 
     conf = gdna.gen_DNA_conf(nbp, disc_len, periodic_box=periodic_box, lb=40, ev_size=ev_size, first_pos=None, first_triad=None)
 
