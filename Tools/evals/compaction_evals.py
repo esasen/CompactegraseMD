@@ -16,15 +16,32 @@ except ModuleNotFoundError:
 
 ########################################################################
 ########################################################################
-########################################################################
+### Radius of Gyration #################################################
 
 # @jit(nopython=True)
-def radius_of_gyration(conf):7
+def radius_of_gyration(conf):
+    if len(np.shape(conf)) not in [2,3]:
+        raise ValueError(f"Dimension of configuration matrix needs to be 2 or 3. {len(np.shape(conf))} given.")
+    if len(np.shape(conf)) == 3:
+        rgs = np.zeros(len(conf)):
+        for i in range(len(rgs)):
+            rgs[i] = __radius_of_gyration(conf[i])
+        return rgs
+    return __radius_of_gyration(conf)
+
+def __radius_of_gyration(conf):
     com  = center_of_mass(conf)
     return np.sqrt(np.sum((conf-com)**2))
 
 def center_of_mass(conf):
     return np.mean(conf,axis=0)
+
+########################################################################
+########################################################################
+### Radial Distribution Function #######################################
+
+def radial_distribution_function(confs):
+
 
 
 

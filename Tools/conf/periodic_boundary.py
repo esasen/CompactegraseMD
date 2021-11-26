@@ -86,6 +86,48 @@ def valid_box(box):
             raise ValueError(f'Lower bound of periodic box larger than upper bound')
 
 
+########################################################################
+# Unwrap Coordinates
+
+def unwrap_dna(conf,box,disc_len=None):
+    """
+    Unwraps the corrodinates of the provided chain. The configutation matrix can only contain the possitions
+    DNA monomers
+    :param conf:        positions of DNA monomers. The dimension may be (m,n,d) or (n,d), with m the number of snapshots
+                        n the number of monomers and d the dimensionality of the space
+    :param box:         limits of the periodic boxy
+    :param disc_len (optional):
+                        discretization length of the chain. If not provided the discretization length is calculated
+                        based on the closed monomer distance found in the first snapshot
+    :return:    matrix of the same dimension as conf with unwrapped coordinates
+    """
+    if len(np.shape(conf)) not in [2,3]:
+        raise ValueError(f"Dimension of configuration matrix needs to be 2 or 3. {len(np.shape(conf))} given.")
+    if len(np.shape(conf)) == 3:
+        uconfs = np.empty(np.shape(conf)):
+        disc_len = unwrap_disc_len(conf[0])
+        for i in range(len(uconfs)):
+            uconfs[i] = (conf[i], box, disc_len)
+        return uconfs
+    return (conf, box, unwrap_disc_len(conf))
+
+def __unwrap_dna(conf, box, disc_len):
+
+
+
+@jit(nopython=True)
+def unwrap_disc_len(conf):
+    Ts = np.diff(conf,n=1,axis=0)
+    return np.min(np.linalg.norm(Ts,axis=1))
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
 
     box = np.array([[-2.,10],[-2.,10],[-2,10]])
