@@ -104,18 +104,35 @@ def unwrap_dna(conf,box,disc_len=None):
     if len(np.shape(conf)) not in [2,3]:
         raise ValueError(f"Dimension of configuration matrix needs to be 2 or 3. {len(np.shape(conf))} given.")
     if len(np.shape(conf)) == 3:
-        uconfs = np.empty(np.shape(conf)):
+        # uconfs = np.empty(np.shape(conf))
+        # disc_len = unwrap_disc_len(conf[0])
+        # for i in range(len(uconfs)):
+        #     uconfs[i] = __unwrap_dna(conf[i], box, disc_len)
+        # return uconfs
         disc_len = unwrap_disc_len(conf[0])
-        for i in range(len(uconfs)):
-            uconfs[i] = (conf[i], box, disc_len)
-        return uconfs
-    return (conf, box, unwrap_disc_len(conf))
-
-def __unwrap_dna(conf, box, disc_len):
-
-
+        return __loop_unwrap_dnp(conf,box,disc_len)
+    return __unwrap_dna(conf, box, unwrap_disc_len(conf))
 
 @jit(nopython=True)
+def __loop_unwrap_dnp(conf,box,disc_len):
+    uconfs = np.empty(np.shape(conf))
+    for i in range(len(uconfs)):
+        uconfs[i] = __unwrap_dna(conf[i], box, disc_len)
+    return uconfs
+
+@jit(nopython=True)
+def __unwrap_dna(conf, box, disc_len):
+    uconf = np.zeros(np.shape(conf))
+    uconf[0] = conf[0]
+    boxL = box[:,1] - box[:,0]
+    dim   = np.shape(conf)[-1]
+    for i in range(len(conf)-1):
+        for d in range(dim):
+            uconf[i+1,d] = conf[i+1,d]-np.round((conf[i+1,d]-uconf[i,d])/boxL[d])*boxL[d]
+    return uconf
+
+
+# @jit(nopython=True)
 def unwrap_disc_len(conf):
     Ts = np.diff(conf,n=1,axis=0)
     return np.min(np.linalg.norm(Ts,axis=1))

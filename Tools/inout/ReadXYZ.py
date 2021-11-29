@@ -23,9 +23,9 @@ On Execution:
 """
 
 def LoadXYZ(filename,savenpy=True,loadnpy=True):
-    fnpy = filename[:-4]+'.npy'
+    fnpy = '.'.join(filename.split('.')[:-1])+'.npy'
     if os.path.isfile(fnpy) and loadnpy:
-        data = np.load(fnpy)
+        data = np.load(fnpy,allow_pickle=True)
     else:
         data = ReadXYZ(filename)
         if savenpy:
@@ -70,14 +70,17 @@ def ReadXYZ_atomtypes(fn):
                 ll   = F.linelist()
         line = F.readline()
     return types
-    
-        
+
 def SaveXYZ(outname,data):
     if outname[-4:] == '.npy':
         outn = outname
     else:
         outn = outname + '.npy'
     np.save(outn,data)
+
+def get_atoms_of_type(data,typeids):
+    select = np.array([i for i in range(len(data['types'])) if data['types'][i] in typeids])
+    return data['data'][:,select]
 
 if __name__ == "__main__":
     

@@ -153,8 +153,8 @@ def plot_DNA_conf(conf):
 
 if __name__ == "__main__":
     
-    if len(sys.argv) < 2:
-        print("usage: %s num_bp L"%sys.argv[0])
+    if len(sys.argv) < 3:
+        print("usage: %s num_bp disc_len L"%sys.argv[0])
         sys.exit()
     
     nbp         = int(sys.argv[1])
@@ -182,3 +182,18 @@ if __name__ == "__main__":
 
     plot_DNA_conf(conf)
 
+    # uconf = bp.unwrap_dna(conf,periodic_box,disc_len=None)
+    # plot_DNA_conf(uconf)
+
+    check_unwrap = False
+    if check_unwrap:
+        M = 20
+        confs = np.zeros([M,nbp,3])
+        for m in range(M):
+            print(m)
+            confs[m] = gen_DNA_conf(nbp, disc_len, periodic_box=periodic_box, lb=40, ev_size=ev_size, first_pos=None, first_triad=None)
+
+        uconfs = bp.unwrap_dna(confs, periodic_box, disc_len=None)
+        for m,uconf in enumerate(uconfs):
+            plot_DNA_conf(confs[m])
+            plot_DNA_conf(uconfs[m])
